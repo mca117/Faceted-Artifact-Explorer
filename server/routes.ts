@@ -173,6 +173,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       next(err);
     }
   });
+  
+  // Partial update artifact (PATCH endpoint for Edit Artifact page)
+  app.patch("/api/artifacts/:id", async (req, res, next) => {
+    try {
+      // Check if user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid artifact ID" });
+      }
+      
+      const artifact = await storage.getArtifact(id);
+      if (!artifact) {
+        return res.status(404).json({ message: "Artifact not found" });
+      }
+      
+      // Check if the user is the creator of the artifact or has curator/admin role
+      if (artifact.user_id !== req.user.id && req.user.role !== 'curator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: "You can only edit artifacts you created" });
+      }
+      
+      const artifactData = insertArtifactSchema.partial().parse(req.body);
+      const updatedArtifact = await storage.updateArtifact(id, artifactData);
+      
+      res.json(updatedArtifact);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid artifact data", 
+          errors: err.errors
+        });
+      }
+      next(err);
+    }
+  });
 
   // Update artifact (curator role required) - legacy endpoint
   app.put("/api/curator/artifacts/:id", async (req, res, next) => {

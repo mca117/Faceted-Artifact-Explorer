@@ -92,11 +92,15 @@ export default function EditArtifactPage() {
       }
       return response.json();
     },
-    enabled: !!artifactId,
-    onSuccess: (data) => {
-      setImages(data);
-    }
+    enabled: !!artifactId
   });
+  
+  // Update images when data changes
+  useEffect(() => {
+    if (imageData) {
+      setImages(imageData);
+    }
+  }, [imageData]);
 
   // Create form
   const form = useForm<ArtifactFormValues>({
@@ -591,7 +595,9 @@ export default function EditArtifactPage() {
                             <input
                               type="checkbox"
                               checked={field.value === true}
-                              onChange={(e) => field.onChange(e.target.checked)}
+                              onChange={(e) => {
+                                field.onChange(e.target.checked);
+                              }}
                               className="mt-1"
                             />
                           </FormControl>
