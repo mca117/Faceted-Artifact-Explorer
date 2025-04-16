@@ -8,6 +8,7 @@ import AuthPage from "@/pages/auth-page";
 import AboutPage from "@/pages/about-page";
 import ArtifactDetailPage from "@/pages/artifact-detail-page";
 import AddArtifactPage from "@/pages/add-artifact-page";
+import EditArtifactPage from "@/pages/edit-artifact-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 import Header from "@/components/header";
@@ -24,6 +25,7 @@ function Router() {
           <Route path="/about" component={AboutPage} />
           <Route path="/artifacts/:id" component={ArtifactDetailPage} />
           <ProtectedRoute path="/add-artifact" component={AddArtifactPage} />
+          <ProtectedRoute path="/edit-artifact/:id" component={EditArtifactPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

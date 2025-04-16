@@ -2,15 +2,17 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { Artifact, ArtifactImage, Tag } from "@shared/schema";
-import { Loader2, Download, ZoomIn, Layers } from "lucide-react";
+import { Loader2, Download, ZoomIn, Layers, Edit } from "lucide-react";
 import ImageGallery from "@/components/image-gallery";
 import ThreeModelViewer from "@/components/three-model-viewer";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function ArtifactDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [, navigate] = useLocation();
   const [showModel, setShowModel] = useState(false);
+  const { user } = useAuth();
   
   // Fetch artifact data
   const { data, isLoading, isError } = useQuery({
@@ -71,14 +73,25 @@ export default function ArtifactDetailPage() {
         {/* Artifact header */}
         <div className="p-4 border-b border-neutral-200 flex justify-between items-center">
           <h1 className="font-serif text-2xl md:text-3xl font-bold text-primary-600">{artifact.title}</h1>
-          <button
-            onClick={() => navigate("/")}
-            className="text-neutral-500 hover:text-neutral-800"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center space-x-2">
+            {user && (user.id === artifact.user_id || user.role === 'curator' || user.role === 'admin') && (
+              <button
+                onClick={() => navigate(`/edit-artifact/${artifact.id}`)}
+                className="text-primary-500 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 p-2 rounded-full"
+                title="Edit artifact"
+              >
+                <Edit className="w-5 h-5" />
+              </button>
+            )}
+            <button
+              onClick={() => navigate("/")}
+              className="text-neutral-500 hover:text-neutral-800"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
         
         <div className="flex flex-col md:flex-row">
