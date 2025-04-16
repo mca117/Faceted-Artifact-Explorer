@@ -128,7 +128,11 @@ export default function AddArtifactPage() {
                     <FormItem>
                       <FormLabel>Artifact Title*</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Bronze Age Axe Head" {...field} />
+                        <Input 
+                          placeholder="e.g., Bronze Age Axe Head" 
+                          value={field.value as string}
+                          onChange={field.onChange} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -142,7 +146,11 @@ export default function AddArtifactPage() {
                     <FormItem>
                       <FormLabel>Catalog ID Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., ART-2023-0001" {...field} />
+                        <Input 
+                          placeholder="e.g., ART-2023-0001" 
+                          value={field.value as string}
+                          onChange={field.onChange} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -159,7 +167,8 @@ export default function AddArtifactPage() {
                         <Textarea 
                           placeholder="Detailed description of the artifact" 
                           className="min-h-[100px]" 
-                          {...field} 
+                          value={field.value as string}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -180,7 +189,11 @@ export default function AddArtifactPage() {
                       <FormItem>
                         <FormLabel>Culture*</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Roman, Egyptian, Mayan" {...field} />
+                          <Input 
+                            placeholder="e.g., Roman, Egyptian, Mayan" 
+                            value={field.value as string}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -197,14 +210,11 @@ export default function AddArtifactPage() {
                           <Input 
                             type="number" 
                             placeholder="e.g., -500 for 500 BCE, 1200 for 1200 CE" 
-                            value={field.value || ''}
+                            value={field.value === undefined ? '' : field.value}
                             onChange={(e) => {
-                              const value = e.target.value === '' ? undefined : Number(e.target.value);
+                              const value = e.target.value === '' ? undefined : parseInt(e.target.value);
                               field.onChange(value);
                             }}
-                            onBlur={field.onBlur}
-                            name={field.name}
-                            ref={field.ref}
                           />
                         </FormControl>
                         <FormMessage />
@@ -219,7 +229,11 @@ export default function AddArtifactPage() {
                       <FormItem>
                         <FormLabel>Period</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Neolithic, Bronze Age, Medieval" {...field} />
+                          <Input 
+                            placeholder="e.g., Neolithic, Bronze Age, Medieval" 
+                            value={field.value as string}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -233,7 +247,11 @@ export default function AddArtifactPage() {
                       <FormItem>
                         <FormLabel>Location/Provenance</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Pompeii, Italy" {...field} />
+                          <Input 
+                            placeholder="e.g., Pompeii, Italy" 
+                            value={field.value as string}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -261,9 +279,6 @@ export default function AddArtifactPage() {
                               const value = e.target.value;
                               field.onChange(value ? value.split(',').map(m => m.trim()) : []);
                             }}
-                            onBlur={field.onBlur}
-                            name={field.name}
-                            ref={field.ref}
                           />
                         </FormControl>
                         <p className="text-xs text-neutral-500">Separate multiple materials with commas</p>
@@ -279,7 +294,11 @@ export default function AddArtifactPage() {
                       <FormItem>
                         <FormLabel>Dimensions</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., 15 x 10 x 5 cm" {...field} />
+                          <Input 
+                            placeholder="e.g., 15 x 10 x 5 cm" 
+                            value={field.value as string}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -297,9 +316,6 @@ export default function AddArtifactPage() {
                           type="checkbox"
                           checked={field.value === true}
                           onChange={(e) => field.onChange(e.target.checked)}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
                           className="mt-1"
                         />
                       </FormControl>
