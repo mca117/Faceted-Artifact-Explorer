@@ -5,7 +5,9 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
+import AboutPage from "@/pages/about-page";
 import ArtifactDetailPage from "@/pages/artifact-detail-page";
+import AddArtifactPage from "@/pages/add-artifact-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 import Header from "@/components/header";
@@ -19,7 +21,9 @@ function Router() {
         <Switch>
           <Route path="/" component={HomePage} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/about" component={AboutPage} />
           <Route path="/artifacts/:id" component={ArtifactDetailPage} />
+          <ProtectedRoute path="/add-artifact" component={AddArtifactPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

@@ -63,6 +63,11 @@ export default function Header() {
             <Link href="/about" className={`px-3 py-2 rounded-md ${location === '/about' ? 'bg-primary-50 text-primary-600' : 'text-neutral-600 hover:text-primary-500'}`}>
               About
             </Link>
+            {user && (
+              <Link href="/add-artifact" className={`px-3 py-2 rounded-md ${location === '/add-artifact' ? 'bg-primary-50 text-primary-600' : 'text-neutral-600 hover:text-primary-500'}`}>
+                Add Artifact
+              </Link>
+            )}
             
             {user ? (
               <div className="border-t border-neutral-200 pt-2 mt-2">

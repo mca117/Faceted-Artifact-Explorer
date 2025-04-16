@@ -16,30 +16,30 @@ export default function Footer() {
             <div>
               <h3 className="font-medium text-primary-100 mb-3">Explore</h3>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/"><a className="text-primary-300 hover:text-white">Collections</a></Link></li>
-                <li><Link href="/periods"><a className="text-primary-300 hover:text-white">Time Periods</a></Link></li>
-                <li><Link href="/cultures"><a className="text-primary-300 hover:text-white">Cultures</a></Link></li>
-                <li><Link href="/materials"><a className="text-primary-300 hover:text-white">Materials</a></Link></li>
+                <li><Link href="/" className="text-primary-300 hover:text-white">Collections</Link></li>
+                <li><Link href="/periods" className="text-primary-300 hover:text-white">Time Periods</Link></li>
+                <li><Link href="/cultures" className="text-primary-300 hover:text-white">Cultures</Link></li>
+                <li><Link href="/materials" className="text-primary-300 hover:text-white">Materials</Link></li>
               </ul>
             </div>
             
             <div>
               <h3 className="font-medium text-primary-100 mb-3">Resources</h3>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/research"><a className="text-primary-300 hover:text-white">Research Tools</a></Link></li>
-                <li><Link href="/api"><a className="text-primary-300 hover:text-white">API Documentation</a></Link></li>
-                <li><Link href="/downloads"><a className="text-primary-300 hover:text-white">Data Downloads</a></Link></li>
-                <li><Link href="/guide"><a className="text-primary-300 hover:text-white">User Guide</a></Link></li>
+                <li><Link href="/research" className="text-primary-300 hover:text-white">Research Tools</Link></li>
+                <li><Link href="/api" className="text-primary-300 hover:text-white">API Documentation</Link></li>
+                <li><Link href="/downloads" className="text-primary-300 hover:text-white">Data Downloads</Link></li>
+                <li><Link href="/guide" className="text-primary-300 hover:text-white">User Guide</Link></li>
               </ul>
             </div>
             
             <div>
               <h3 className="font-medium text-primary-100 mb-3">About</h3>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/about"><a className="text-primary-300 hover:text-white">Project</a></Link></li>
-                <li><Link href="/partners"><a className="text-primary-300 hover:text-white">Partners</a></Link></li>
-                <li><Link href="/contact"><a className="text-primary-300 hover:text-white">Contact</a></Link></li>
-                <li><Link href="/privacy"><a className="text-primary-300 hover:text-white">Privacy Policy</a></Link></li>
+                <li><Link href="/about" className="text-primary-300 hover:text-white">Project</Link></li>
+                <li><Link href="/partners" className="text-primary-300 hover:text-white">Partners</Link></li>
+                <li><Link href="/contact" className="text-primary-300 hover:text-white">Contact</Link></li>
+                <li><Link href="/privacy" className="text-primary-300 hover:text-white">Privacy Policy</Link></li>
               </ul>
             </div>
           </div>
