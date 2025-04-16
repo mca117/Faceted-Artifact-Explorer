@@ -36,6 +36,7 @@ const artifactFormSchema = insertArtifactSchema
     title: z.string().min(3, "Title must be at least 3 characters"),
     description: z.string().min(10, "Description must be at least 10 characters"),
     id_number: z.string().min(2, "ID Number must be at least 2 characters"),
+    date_start: z.number().int().optional(),
   })
   .transform((data) => {
     // Ensure nulls are transformed to undefined to satisfy the form requirements
@@ -196,7 +197,14 @@ export default function AddArtifactPage() {
                           <Input 
                             type="number" 
                             placeholder="e.g., -500 for 500 BCE, 1200 for 1200 CE" 
-                            {...field} 
+                            value={field.value || ''}
+                            onChange={(e) => {
+                              const value = e.target.value === '' ? undefined : Number(e.target.value);
+                              field.onChange(value);
+                            }}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
                           />
                         </FormControl>
                         <FormMessage />
@@ -248,11 +256,14 @@ export default function AddArtifactPage() {
                         <FormControl>
                           <Input 
                             placeholder="e.g., Bronze, Clay, Stone"
-                            value={field.value ? field.value.join(', ') : ''}
+                            value={Array.isArray(field.value) ? field.value.join(', ') : ''}
                             onChange={(e) => {
                               const value = e.target.value;
                               field.onChange(value ? value.split(',').map(m => m.trim()) : []);
                             }}
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
                           />
                         </FormControl>
                         <p className="text-xs text-neutral-500">Separate multiple materials with commas</p>
@@ -284,8 +295,11 @@ export default function AddArtifactPage() {
                       <FormControl>
                         <input
                           type="checkbox"
-                          checked={field.value}
-                          onChange={field.onChange}
+                          checked={field.value === true}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                           className="mt-1"
                         />
                       </FormControl>
