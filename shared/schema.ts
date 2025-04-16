@@ -33,6 +33,7 @@ export const artifacts = pgTable("artifacts", {
   has_3d_model: boolean("has_3d_model").default(false),
   model_url: text("model_url"),
   model_type: text("model_type"),
+  user_id: integer("user_id"), // Added user_id to track who created the artifact
   created_at: timestamp("created_at").defaultNow(),
 });
 

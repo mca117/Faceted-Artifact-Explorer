@@ -86,7 +86,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
       
-      const artifactData = insertArtifactSchema.parse(req.body);
+      const artifactData = insertArtifactSchema.parse({
+        ...req.body,
+        user_id: req.user.id // Add the user ID to track who created this artifact
+      });
       const artifact = await storage.createArtifact(artifactData);
       
       res.status(201).json(artifact);
@@ -113,7 +116,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Curator role required" });
       }
       
-      const artifactData = insertArtifactSchema.parse(req.body);
+      const artifactData = insertArtifactSchema.parse({
+        ...req.body,
+        user_id: req.user.id // Add user ID for curator-created artifacts as well
+      });
       const artifact = await storage.createArtifact(artifactData);
       
       res.status(201).json(artifact);
@@ -128,9 +134,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Update artifact (curator role required)
+  // Update artifact (regular users can only update their own artifacts)
+  app.put("/api/artifacts/:id", async (req, res, next) => {
+    try {
+      // Check if user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid artifact ID" });
+      }
+      
+      const artifact = await storage.getArtifact(id);
+      if (!artifact) {
+        return res.status(404).json({ message: "Artifact not found" });
+      }
+      
+      // Check if the user is the creator of the artifact 
+      // For simplicity, we're assuming the user who created the artifact has their ID in the user_id field
+      // If this field doesn't exist, you may need to adjust your schema
+      if (artifact.user_id !== req.user.id && req.user.role !== 'curator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: "You can only edit artifacts you created" });
+      }
+      
+      const artifactData = insertArtifactSchema.partial().parse(req.body);
+      const updatedArtifact = await storage.updateArtifact(id, artifactData);
+      
+      res.json(updatedArtifact);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid artifact data", 
+          errors: err.errors
+        });
+      }
+      next(err);
+    }
+  });
+
+  // Update artifact (curator role required) - legacy endpoint
   app.put("/api/curator/artifacts/:id", async (req, res, next) => {
     try {
+      // Check if user is authenticated and has curator role
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      if (req.user.role !== 'curator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Curator role required" });
+      }
+      
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid artifact ID" });
@@ -192,9 +247,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Add image to artifact (curator role required)
+  // Add image to artifact (users can upload to their own artifacts)
+  // Add/update 3D model for an artifact (users can update their own artifacts)
+  app.put("/api/artifacts/:id/model", async (req, res, next) => {
+    try {
+      // Check if user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const artifactId = parseInt(req.params.id);
+      if (isNaN(artifactId)) {
+        return res.status(400).json({ message: "Invalid artifact ID" });
+      }
+      
+      const artifact = await storage.getArtifact(artifactId);
+      if (!artifact) {
+        return res.status(404).json({ message: "Artifact not found" });
+      }
+      
+      // Check if the user is the creator of the artifact (or a curator/admin)
+      if (artifact.user_id !== req.user.id && req.user.role !== 'curator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: "You can only update artifacts you created" });
+      }
+      
+      // Update the model information
+      const { model_url, model_type } = req.body;
+      
+      if (!model_url || !model_type) {
+        return res.status(400).json({ message: "Model URL and type are required" });
+      }
+      
+      // Validate model type
+      const validModelTypes = ['gltf', 'glb', 'obj', 'unity'];
+      if (!validModelTypes.includes(model_type)) {
+        return res.status(400).json({ 
+          message: "Invalid model type", 
+          validTypes: validModelTypes
+        });
+      }
+      
+      const updatedArtifact = await storage.updateArtifact(artifactId, {
+        model_url,
+        model_type,
+        has_3d_model: true
+      });
+      
+      res.json(updatedArtifact);
+    } catch (err) {
+      next(err);
+    }
+  });
+  
+  app.post("/api/artifacts/:id/images", async (req, res, next) => {
+    try {
+      // Check if user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const artifactId = parseInt(req.params.id);
+      if (isNaN(artifactId)) {
+        return res.status(400).json({ message: "Invalid artifact ID" });
+      }
+      
+      const artifact = await storage.getArtifact(artifactId);
+      if (!artifact) {
+        return res.status(404).json({ message: "Artifact not found" });
+      }
+      
+      // Check if the user is the creator of the artifact (or a curator/admin)
+      if (artifact.user_id !== req.user.id && req.user.role !== 'curator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: "You can only add images to artifacts you created" });
+      }
+      
+      const imageData = insertArtifactImageSchema.parse({
+        ...req.body,
+        artifact_id: artifactId
+      });
+      
+      const image = await storage.addArtifactImage(imageData);
+      
+      // If this is the first image or marked as primary, set it as primary
+      if (imageData.is_primary) {
+        await storage.setPrimaryImage(image.id);
+      }
+      
+      res.status(201).json(image);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid image data", 
+          errors: err.errors
+        });
+      }
+      next(err);
+    }
+  });
+
+  // Add image to artifact (curator role required) - legacy endpoint
   app.post("/api/curator/artifacts/:id/images", async (req, res, next) => {
     try {
+      // Check if user is authenticated and has curator role
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      if (req.user.role !== 'curator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Curator role required" });
+      }
+      
       const artifactId = parseInt(req.params.id);
       if (isNaN(artifactId)) {
         return res.status(400).json({ message: "Invalid artifact ID" });
