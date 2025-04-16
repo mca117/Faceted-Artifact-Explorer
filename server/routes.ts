@@ -78,9 +78,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Create artifact (curator role required)
+  // Create artifact (authenticated users)
+  app.post("/api/artifacts", async (req, res, next) => {
+    try {
+      // Check if user is authenticated
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const artifactData = insertArtifactSchema.parse(req.body);
+      const artifact = await storage.createArtifact(artifactData);
+      
+      res.status(201).json(artifact);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid artifact data", 
+          errors: err.errors
+        });
+      }
+      next(err);
+    }
+  });
+  
+  // Create artifact (curator role required) - legacy endpoint
   app.post("/api/curator/artifacts", async (req, res, next) => {
     try {
+      // Check if user is authenticated and has curator role
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      if (req.user.role !== 'curator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Curator role required" });
+      }
+      
       const artifactData = insertArtifactSchema.parse(req.body);
       const artifact = await storage.createArtifact(artifactData);
       

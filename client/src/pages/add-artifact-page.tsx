@@ -31,16 +31,18 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { insertArtifactSchema } from "@shared/schema";
 
 // Extend the artifact schema with additional validations
-const artifactFormSchema = insertArtifactSchema.extend({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  date_start: z.coerce.number().int().optional().nullable(),
-  culture: z.string().min(2, "Culture must be at least 2 characters").optional().nullable(),
-  materials: z.array(z.string()).optional().nullable(),
-  period: z.string().optional().nullable(),
-  dimensions: z.string().optional().nullable(),
-  provenance: z.string().optional().nullable(),
-});
+const artifactFormSchema = insertArtifactSchema
+  .extend({
+    title: z.string().min(3, "Title must be at least 3 characters"),
+    description: z.string().min(10, "Description must be at least 10 characters"),
+    id_number: z.string().min(2, "ID Number must be at least 2 characters"),
+  })
+  .transform((data) => {
+    // Ensure nulls are transformed to undefined to satisfy the form requirements
+    return Object.fromEntries(
+      Object.entries(data).map(([key, value]) => [key, value === null ? undefined : value])
+    );
+  });
 
 type ArtifactFormValues = z.infer<typeof artifactFormSchema>;
 
