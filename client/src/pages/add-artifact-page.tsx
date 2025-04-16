@@ -32,11 +32,14 @@ import { insertArtifactSchema } from "@shared/schema";
 
 // Extend the artifact schema with additional validations
 const artifactFormSchema = insertArtifactSchema.extend({
-  name: z.string().min(3, "Name must be at least 3 characters"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  year_created: z.coerce.number().int(),
-  culture: z.string().min(2, "Culture must be at least 2 characters"),
-  material: z.string().min(2, "Material must be at least 2 characters"),
+  date_start: z.coerce.number().int().optional().nullable(),
+  culture: z.string().min(2, "Culture must be at least 2 characters").optional().nullable(),
+  materials: z.array(z.string()).optional().nullable(),
+  period: z.string().optional().nullable(),
+  dimensions: z.string().optional().nullable(),
+  provenance: z.string().optional().nullable(),
 });
 
 type ArtifactFormValues = z.infer<typeof artifactFormSchema>;
@@ -55,16 +58,16 @@ export default function AddArtifactPage() {
   const form = useForm<ArtifactFormValues>({
     resolver: zodResolver(artifactFormSchema),
     defaultValues: {
-      name: "",
+      title: "",
       description: "",
       id_number: "",
-      year_created: -1000,
+      date_start: -1000,
       culture: "",
-      material: "",
+      materials: [],
       period: "",
-      location_found: "",
       dimensions: "",
       has_3d_model: false,
+      provenance: "",
     },
   });
 
@@ -117,10 +120,10 @@ export default function AddArtifactPage() {
                 
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Artifact Name*</FormLabel>
+                      <FormLabel>Artifact Title*</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., Bronze Age Axe Head" {...field} />
                       </FormControl>
@@ -183,7 +186,7 @@ export default function AddArtifactPage() {
 
                   <FormField
                     control={form.control}
-                    name="year_created"
+                    name="date_start"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Year Created (BCE/CE)*</FormLabel>
@@ -215,10 +218,10 @@ export default function AddArtifactPage() {
 
                   <FormField
                     control={form.control}
-                    name="location_found"
+                    name="provenance"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Location Found</FormLabel>
+                        <FormLabel>Location/Provenance</FormLabel>
                         <FormControl>
                           <Input placeholder="e.g., Pompeii, Italy" {...field} />
                         </FormControl>
@@ -236,13 +239,21 @@ export default function AddArtifactPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="material"
+                    name="materials"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Material*</FormLabel>
+                        <FormLabel>Materials*</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Bronze, Clay, Stone" {...field} />
+                          <Input 
+                            placeholder="e.g., Bronze, Clay, Stone"
+                            value={field.value ? field.value.join(', ') : ''}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(value ? value.split(',').map(m => m.trim()) : []);
+                            }}
+                          />
                         </FormControl>
+                        <p className="text-xs text-neutral-500">Separate multiple materials with commas</p>
                         <FormMessage />
                       </FormItem>
                     )}

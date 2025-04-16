@@ -101,6 +101,11 @@ export default function Header() {
             <Link href="/about" className={`text-neutral-600 hover:text-primary-500 ${location === '/about' && 'font-medium text-primary-500'}`}>
               About
             </Link>
+            {user && (
+              <Link href="/add-artifact" className={`text-neutral-600 hover:text-primary-500 ${location === '/add-artifact' && 'font-medium text-primary-500'}`}>
+                Add Artifact
+              </Link>
+            )}
             
             {user ? (
               <DropdownMenu>
