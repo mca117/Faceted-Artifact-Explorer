@@ -180,7 +180,7 @@ export default function HomePage() {
         )}
         
         {/* Empty State */}
-        {!isLoading && !isError && data?.artifacts?.length === 0 && (
+        {!isLoading && !isError && data && data.artifacts && data.artifacts.length === 0 && (
           <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-8 text-center">
             <h3 className="text-lg font-medium text-neutral-800 mb-2">No artifacts found</h3>
             <p className="text-neutral-600 mb-4">Try adjusting your filters or search query to find artifacts.</p>
@@ -194,7 +194,7 @@ export default function HomePage() {
         )}
         
         {/* Artifacts Grid */}
-        {!isLoading && !isError && data?.artifacts?.length > 0 && (
+        {!isLoading && !isError && data && data.artifacts && data.artifacts.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {data.artifacts.map((artifact: Artifact) => (
               <ArtifactCard key={artifact.id} artifact={artifact} />
@@ -203,7 +203,7 @@ export default function HomePage() {
         )}
         
         {/* Pagination */}
-        {!isLoading && !isError && data?.pagination?.totalPages > 1 && (
+        {!isLoading && !isError && data && data.pagination && data.pagination.totalPages > 1 && (
           <div className="mt-8">
             <Pagination 
               currentPage={currentPage}

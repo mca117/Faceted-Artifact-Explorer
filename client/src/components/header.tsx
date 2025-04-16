@@ -35,13 +35,11 @@ export default function Header() {
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between py-3">
         <div className="flex items-center space-x-2 mb-3 md:mb-0 w-full md:w-auto justify-between">
-          <Link href="/">
-            <a className="flex items-center space-x-2">
-              <svg className="w-8 h-8 text-primary-500" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L1 12h3v9h16v-9h3L12 2zm0 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"></path>
-              </svg>
-              <h1 className="text-2xl font-serif font-bold text-primary-500">Faceted Artifact Explorer</h1>
-            </a>
+          <Link href="/" className="flex items-center space-x-2">
+            <svg className="w-8 h-8 text-primary-500" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L1 12h3v9h16v-9h3L12 2zm0 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"></path>
+            </svg>
+            <h1 className="text-2xl font-serif font-bold text-primary-500">Faceted Artifact Explorer</h1>
           </Link>
           
           <button 
@@ -59,15 +57,11 @@ export default function Header() {
           </div>
           
           <div className="flex flex-col space-y-2">
-            <Link href="/">
-              <a className={`px-3 py-2 rounded-md ${location === '/' ? 'bg-primary-50 text-primary-600' : 'text-neutral-600 hover:text-primary-500'}`}>
-                Collections
-              </a>
+            <Link href="/" className={`px-3 py-2 rounded-md ${location === '/' ? 'bg-primary-50 text-primary-600' : 'text-neutral-600 hover:text-primary-500'}`}>
+              Collections
             </Link>
-            <Link href="/about">
-              <a className={`px-3 py-2 rounded-md ${location === '/about' ? 'bg-primary-50 text-primary-600' : 'text-neutral-600 hover:text-primary-500'}`}>
-                About
-              </a>
+            <Link href="/about" className={`px-3 py-2 rounded-md ${location === '/about' ? 'bg-primary-50 text-primary-600' : 'text-neutral-600 hover:text-primary-500'}`}>
+              About
             </Link>
             
             {user ? (
@@ -84,10 +78,8 @@ export default function Header() {
                 </button>
               </div>
             ) : (
-              <Link href="/auth">
-                <a className="bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 transition-colors text-center">
-                  Sign In
-                </a>
+              <Link href="/auth" className="bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 transition-colors text-center">
+                Sign In
               </Link>
             )}
           </div>
@@ -98,15 +90,11 @@ export default function Header() {
           <SearchBar className="w-full max-w-md" />
           
           <div className="hidden md:flex items-center space-x-4 text-sm">
-            <Link href="/">
-              <a className={`text-neutral-600 hover:text-primary-500 ${location === '/' && 'font-medium text-primary-500'}`}>
-                Collections
-              </a>
+            <Link href="/" className={`text-neutral-600 hover:text-primary-500 ${location === '/' && 'font-medium text-primary-500'}`}>
+              Collections
             </Link>
-            <Link href="/about">
-              <a className={`text-neutral-600 hover:text-primary-500 ${location === '/about' && 'font-medium text-primary-500'}`}>
-                About
-              </a>
+            <Link href="/about" className={`text-neutral-600 hover:text-primary-500 ${location === '/about' && 'font-medium text-primary-500'}`}>
+              About
             </Link>
             
             {user ? (
@@ -130,10 +118,8 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link href="/auth">
-                <a className="bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 transition-colors">
-                  Sign In
-                </a>
+              <Link href="/auth" className="bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 transition-colors">
+                Sign In
               </Link>
             )}
           </div>
