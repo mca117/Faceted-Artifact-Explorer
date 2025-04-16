@@ -1,0 +1,47 @@
+You are an expert prompt engineer and full‑stack architect. Generate a detailed project specification for a “Faceted Artifact Explorer” web application that meets the following requirements:
+
+1. High‑Level Architecture  
+   - Frontend: React + TypeScript, styled with Tailwind CSS  
+   - 3D Rendering: Three.js for glTF/OBJ models, Unity WebGL loader for Unity3D scenes  
+   - Backend API: choose between Node.js/Express (TS), ASP.NET Core (C#), or Python FastAPI  
+   - Search Engine: Elasticsearch for faceted, full‑text, fuzzy, and geo‑enabled search  
+   - Databases: PostgreSQL for relational metadata + MongoDB/GridFS for flexible metadata & binary refs  
+   - Storage & CDN: AWS S3 (or Azure Blob) + CloudFront (or Azure CDN)  
+   - Auth: JWT with role‑based access (viewer, curator, admin)
+
+2. Key Features & User Flows  
+   - Faceted Search UI: dynamic filters (period, site, material, language/script, culture), autocomplete, fuzzy matching, synonym expansion (“Uruk ⇄ Erech”), geo‑bounding box map widget, time‑slider control  
+   - Artifact Detail Pages: high‑res image gallery with auto‑generated thumbnails & WebP conversion, zoom/pan lightbox, inline annotations, metadata display & downloadable citations  
+   - 3D Model Integration: embed Three.js canvas for glTF/OBJ, embed Unity WebGL scenes for interactive reconstructions  
+   - Curator Tools: tag management, metadata versioning, annotation editor  
+   - Responsive & Accessible: mobile‑first design, WCAG 2.1 compliance, ARIA labels
+
+3. Data Models & Workflows  
+   - Elasticsearch index mapping for artifacts including fields: artifact_id, title, period, culture, materials, description, geo_point findspot, date_range, tags, image_urls, model_refs  
+   - Upload pipeline: client → `/api/uploads` → validate → S3 → return URL → indexing job updates Elasticsearch  
+   - Search endpoint: construct Elasticsearch DSL queries with filters, fuzzy match, geo_bounding_box, date_range, aggregations for facets  
+   - 3D model serving: CDN‑hosted glTF/OBJ and Unity builds, lazy‑loading on demand
+
+4. Image & Model Support  
+   - Raster (JPEG/PNG/TIFF): server‑side compression (Sharp), WebP conversion  
+   - Vector (SVG): static hosting or inline embedding  
+   - Rhino3D exports (`.3dm` → `.glb`/`.obj`) via Rhino Compute or `rhino3dm` toolkit  
+   - Unity3D WebGL builds hosted on CDN, loaded via React wrappers  
+   - Secure access with signed URLs for private resources
+
+5. Tech Stack & Tools  
+   - Frontend: React, TypeScript, Tailwind CSS, React Query, Three.js, Unity WebGL Loader, Leaflet, Mapbox  
+   - Backend: Node.js/Express (TS) or ASP.NET Core or FastAPI  
+   - Search: Elasticsearch  
+   - Databases: PostgreSQL, MongoDB/GridFS  
+   - Storage & CDN: AWS S3, CloudFront (or Azure equivalents)  
+   - CI/CD: GitHub Actions + Docker + Terraform  
+   - Auth: JWT, OAuth2 for campus SSO
+
+6. Bonus Considerations  
+   - Synonym/Thesaurus management for historical terminology  
+   - Content‑based image retrieval via CNN embeddings  
+   - Machine‑learning tagging pipeline (e.g., AWS Rekognition)  
+   - Annotation export (JSON/CSV) for research collaboration  
+
+Produce the specification as a structured document with headings, bullet points, code‑style data schemas, and clear descriptions for each component. ```
