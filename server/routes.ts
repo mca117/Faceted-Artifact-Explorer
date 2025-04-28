@@ -563,74 +563,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Search API (using Elasticsearch if available)
-  app.get("/api/search", async (req, res, next) => {
-    try {
-      // Parse and validate search parameters
-      const searchParams = artifactSearchParamsSchema.parse({
-        query: req.query.query,
-        cultures: req.query.cultures,
-        materials: req.query.materials,
-        dateStart: req.query.dateStart ? parseInt(req.query.dateStart as string) : undefined,
-        dateEnd: req.query.dateEnd ? parseInt(req.query.dateEnd as string) : undefined,
-        tags: req.query.tags,
-        site: req.query.site,
-        has3dModel: req.query.has3dModel === 'true',
-        page: req.query.page ? parseInt(req.query.page as string) : 1,
-        limit: req.query.limit ? parseInt(req.query.limit as string) : 12,
-        sort: req.query.sort as any || 'relevance',
+// Search API (using Elasticsearch if available)
+app.get("/api/search", async (req, res, next) => {
+  try {
+    // Parse and validate search parameters
+    const searchParams = artifactSearchParamsSchema.parse({
+      query: req.query.query,
+      cultures: req.query.cultures,
+      materials: req.query.materials,
+      dateStart: req.query.dateStart ? parseInt(req.query.dateStart as string) : undefined,
+      dateEnd: req.query.dateEnd ? parseInt(req.query.dateEnd as string) : undefined,
+      tags: req.query.tags,
+      site: req.query.site,
+      has3dModel: req.query.has3dModel === 'true',
+      page: req.query.page ? parseInt(req.query.page as string) : 1,
+      limit: req.query.limit ? parseInt(req.query.limit as string) : 12,
+      sort: (req.query.sort as any) || 'relevance',
+    });
+
+    if (esClient) {
+      // Use Elasticsearch for search
+      const { body } = await esClient.search({
+        index: 'artifacts',
+        from: (searchParams.page - 1) * searchParams.limit,
+        size: searchParams.limit,
+        body: buildElasticsearchQuery(searchParams),
       });
-      
-      if (esClient) {
-        // Use Elasticsearch for search
-        const { body } = await esClient.search({
-          index: 'artifacts',
-          from: (searchParams.page - 1) * searchParams.limit,
-          size: searchParams.limit,
-          body: buildElasticsearchQuery(searchParams)
-        });
-        
-        const results = body.hits.hits.map((hit: any) => hit._source);
-        const total = body.hits.total.value;
-        
-        res.json({
-          artifacts: results,
-          pagination: {
-            page: searchParams.page,
-            limit: searchParams.limit,
-            total,
-            totalPages: Math.ceil(total / searchParams.limit)
-          }
-        });
-      } else {
-        // Fallback to basic database search if Elasticsearch is not available
-        const artifacts = await storage.listArtifacts({
+      const hits = body.hits.hits.map((hit: any) => hit._source as any);
+      const total = body.hits.total.value;
+
+      // Enrich each hit with images
+      const artifacts = await Promise.all(
+        hits.map(async art => {
+          const imgs = await storage.getArtifactImages(art.id);
+          const urls = imgs.map(i => i.url);
+          return {
+            ...art,
+            image_urls: urls,
+            primary_image_url: urls[0] || null,
+          };
+        })
+      );
+
+      res.json({
+        artifacts,
+        pagination: {
+          page: searchParams.page,
           limit: searchParams.limit,
-          offset: (searchParams.page - 1) * searchParams.limit,
-          sortBy: getSortFieldFromSearchParams(searchParams.sort),
-          sortDir: getSortDirectionFromSearchParams(searchParams.sort)
-        });
-        
-        res.json({
-          artifacts,
-          pagination: {
-            page: searchParams.page,
-            limit: searchParams.limit,
-            total: artifacts.length,
-            totalPages: Math.ceil(artifacts.length / searchParams.limit)
-          }
-        });
-      }
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({ 
-          message: "Invalid search parameters", 
-          errors: err.errors
-        });
-      }
-      next(err);
+          total,
+          totalPages: Math.ceil(total / searchParams.limit),
+        },
+      });
+
+    } else {
+      // Fallback to basic database search if Elasticsearch is not available
+      const base = await storage.listArtifacts({
+        limit: searchParams.limit,
+        offset: (searchParams.page - 1) * searchParams.limit,
+        sortBy: getSortFieldFromSearchParams(searchParams.sort),
+        sortDir: getSortDirectionFromSearchParams(searchParams.sort),
+      });
+
+      // Enrich each artifact with its images
+      const artifacts = await Promise.all(
+        base.map(async art => {
+          const imgs = await storage.getArtifactImages(art.id);
+          const urls = imgs.map(i => i.url);
+          return {
+            ...art,
+            image_urls: urls,
+            primary_image_url: urls[0] || null,
+          };
+        })
+      );
+
+      res.json({
+        artifacts,
+        pagination: {
+          page: searchParams.page,
+          limit: searchParams.limit,
+          total: artifacts.length,
+          totalPages: Math.ceil(artifacts.length / searchParams.limit),
+        },
+      });
     }
-  });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({
+        message: "Invalid search parameters",
+        errors: err.errors,
+      });
+    }
+    next(err);
+  }
+});
   
   const httpServer = createServer(app);
 
